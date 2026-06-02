@@ -23,7 +23,7 @@ pipeline {
 
             steps {
 
-                sh 'ls -ltr'
+                bat 'dir target'
 
             }
         }
