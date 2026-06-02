@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="5af52727-7490-49d7-b93b-ff8d905acc1c" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_config" doc:name="HTTP Request config" doc:id="1543f386-24dc-4809-bd34-92a149a32f90" >
+		<http:request-connection host="training4-american-ws.cloudhub.io" port="80" />
+	</http:request-config>
+	<flow name="flow1">
+  <http:listener doc:name="Listener" config-ref="HTTP_Listener_config"
+    path="/source"/>
+		<logger level="INFO" doc:name="Logger" doc:id="082d608b-d12f-4605-8a24-0d7ed3488410" />
+		<ee:transform doc:name="Transform Message" doc:id="b7ccbe53-6a20-4c29-9c14-83475c88880e" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="source" ><![CDATA[attributes.queryParams.origin]]></ee:set-variable>
+				<ee:set-variable variableName="destination" ><![CDATA[attributes.queryParams.destination]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<http:request doc:name="Request" doc:id="b053e7d9-5fff-4bd1-a0c4-5608ba4b3d5c" config-ref="HTTP_Request_config" path="/api/flights">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	origin : vars.source,
+	destination : vars.destination
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" >
+    <ee:message >
+      <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+    </ee:message>
+  </ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="4110e7e8-14a2-4bcf-8812-68e10d40640a" />
+
+</flow>
+</mule>
