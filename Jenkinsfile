@@ -16,15 +16,22 @@ pipeline {
             }
         }
 
-        stage('Verify Artifact') {
-            steps {
-                bat 'dir target'
-            }
-        }
-
         stage('Deploy to CloudHub') {
             steps {
-                bat 'mvn mule:deploy'
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'anypoint-creds',
+                        usernameVariable: 'ANYPOINT_USER',
+                        passwordVariable: 'ANYPOINT_PASSWORD'
+                    )
+                ]) {
+
+                    bat '''
+                    mvn mule:deploy ^
+                    -Danypoint.username=%ANYPOINT_USER% ^
+                    -Danypoint.password=%ANYPOINT_PASSWORD%
+                    '''
+                }
             }
         }
     }
