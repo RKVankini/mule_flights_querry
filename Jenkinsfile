@@ -15,7 +15,7 @@ pipeline {
             steps {
 
                 git branch: 'main',
-                    url: 'https://github.com/username/repository.git'
+                    url: 'https://github.com/RKVankini/mule_flights_querry.git'
             }
         }
 
